@@ -1,20 +1,48 @@
 {
-  "id": "ctzn.network/post",
-  "title": "Post",
-  "description": "A social media feed post",
+  "id": "ctzn.network/dbrain/memory",
+  "title": "Memory",
+  "description": "A social media feed item to remember and recover",
   "type": "json",
   "definition": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
-    "required": ["text", "createdAt"],
+    "required": ["type", "createdAt", "updatedAt"],
     "additionalProperties": false,
     "properties": {
-      "text": {
+      "type": {
+        "type": "string",
+        "enum": ["link", "article", "image"]
+      },
+      "link": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 256
+        "maxLength": 500
       },
-      "community": {
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "content": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 65000
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "collection": {
         "type": "object",
         "required": ["dbUrl", "userId"],
         "additionalProperties": false,
@@ -29,41 +57,11 @@
           }
         }
       },
-      "reply": {
-        "type": "object",
-        "required": ["root"],
-        "properties": {
-          "root": {
-            "type": "object",
-            "required": ["dbUrl", "authorId"],
-            "properties": {
-              "dbUrl": {
-                "type": "string",
-                "format": "uri"
-              },
-              "authorId": {
-                "type": "string",
-                "pattern": ".+@.+"
-              }
-            }
-          },
-          "parent": {
-            "type": "object",
-            "required": ["dbUrl", "authorId"],
-            "properties": {
-              "dbUrl": {
-                "type": "string",
-                "format": "uri"
-              },
-              "authorId": {
-                "type": "string",
-                "pattern": ".+@.+"
-              }
-            }
-          }
-        }
-      },
       "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "updatedAt": {
         "type": "string",
         "format": "date-time"
       }

@@ -41,19 +41,19 @@
 
 | Field         | Type           | Description         |
 | --------      | --------       | -----------         |
-| id            | Integer        | Unique identifier   |
+| dbUrl         | String         | public-key URL      |
 | link          | String         | Hostname of a link. |
-| excerpt       | String         | Description; max length: 10000 |
-| text          | String         | Content markup; max length: 65000 |
-| domain        | String         | Hostname of a link. |
+| content       | String         | Content markup/image data; max length: 65000 |
 | title         | String         | Title; max length: 1000 |
 | type          | Enum           | link article image video document or audio |
 | created_at    | Timestamp      | Create timestamp |
 | updated_at    | Timestamp      | Update timestamp |
-| tags          | Array<Integer> | Tags list   |
 | collection_id | Integer        | Collection it belongs to |
 | creator_id    | Integer        | User who created it |
+| tags          | Array<Integer> | Tags list   |
+| domain        | String         | Hostname of a link. |
 | broken        | Boolean        | Original link is not reachable |
+| excerpt       | String         | Description; max length: 10000 |
 | favourite     | Boolean        | Favourited within collection |
 | shortcut      | String         | shortcut to copy to clipboard |
 
@@ -62,7 +62,7 @@
 
 | Field         | Type           | Description         |
 | --------      | --------       | -----------         |
-| id            | Integer        | Unique identifier   |
+| dbUrl         | String         | public-key URL      |
 | colour        | String         | Primary color of collection cover as HEX |
 | description   | String         | Description; max length: 10000 |
 | view          | Enum           | list, simple, grid |
@@ -80,6 +80,7 @@
 ### Tag
 | Field         | Type           | Description         |
 | --------      | --------       | -----------         |
+| dbUrl         | String         | public-key URL      |
 | id            | Integer        | Unique identifier   |
 | colour        | String         | Primary color of collection cover as HEX |
 | name          | String         | Name of tag |
@@ -89,7 +90,7 @@
 ### Filter
 | Field         | Type           | Description         |
 | --------      | --------       | -----------         |
-| id            | Integer        | Unique identifier   |
+| dbUrl         | String         | public-key URL      |
 | broken        | Boolean        | Wether memory link is broken or not |
 | favourite     | Boolean        | Wether memory is favourite |
 | no_tag        | Boolean        | Wether memory has tag |
