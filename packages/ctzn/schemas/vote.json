@@ -1,0 +1,36 @@
+{
+  "id": "ctzn.network/vote",
+  "title": "Vote",
+  "description": "A user vote up or down on a piece of content",
+  "type": "json",
+  "definition": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "required": ["subject", "vote", "createdAt"],
+    "additionalProperties": false,
+    "properties": {
+      "subject": {
+        "type": "object",
+        "required": ["dbUrl", "authorId"],
+        "properties": {
+          "dbUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "authorId": {
+            "type": "string",
+            "pattern": ".+@.+"
+          }
+        }
+      },
+      "vote": {
+        "type": "number",
+        "enum": [-1, 1]
+      },
+      "createdAt": {
+        "type": "string",
+        "format": "date-time"
+      }
+    }
+  }
+}

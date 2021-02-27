@@ -1,0 +1,48 @@
+{
+  "name": "ctzn",
+  "version": "0.7.1",
+  "description": "A hybrid p2p/federated social network mad science experiment",
+  "main": "index.js",
+  "type": "module",
+  "bin": "bin.js",
+  "scripts": {
+    "test": "ava -s --timeout=2m"
+  },
+  "keywords": [
+    "p2p",
+    "hypercore",
+    "federated"
+  ],
+  "author": "Paul Frazee <pfrazee@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "ajv": "^7.0.3",
+    "ajv-formats": "^1.5.1",
+    "ava": "^3.15.0",
+    "await-lock": "^2.1.0",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.21",
+    "bytes": "^3.1.0",
+    "concat-stream": "^2.0.0",
+    "config": "^3.3.3",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "hyperbee": "^1.5.0",
+    "hyperspace": "^3.18.1",
+    "ip": "^1.1.5",
+    "lodash.debounce": "^4.0.8",
+    "monotonic-lexicographic-timestamp": "^1.0.0",
+    "node-fetch": "^2.6.1",
+    "pm2": "^4.5.4",
+    "pump": "^3.0.0",
+    "rpc-websockets": "^7.4.8",
+    "subcommand": "^2.1.1",
+    "tail": "^2.2.0",
+    "through2": "^4.0.2",
+    "tmp-promise": "^3.0.2",
+    "uuid": "^8.3.2",
+    "ws": "^7.4.2"
+  },
+  "devDependencies": {}
+}
