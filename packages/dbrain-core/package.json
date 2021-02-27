@@ -1,0 +1,39 @@
+{
+  "name": "dbrain-core",
+  "version": "0.0.1",
+  "description": "Core behaviour of dbrain based on ctzn",
+  "main": "index.js",
+  "type": "module",
+  "bin": "bin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saimonmoore/dbrain.git"
+  },
+  "keywords": [
+    "p2p",
+    "hypercore",
+    "federated",
+    "decentralized",
+    "local-first",
+    "offline",
+    "community-based",
+    "brain",
+    "raindrop",
+    "instapaper"
+  ],
+  "author": "Saimon Moore <saimon@saimonmoore.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/saimonmoore/dbrain/issues"
+  },
+  "homepage": "https://github.com/saimonmoore/dbrain#readme",
+  "dependencies": {
+    "hyperbee": "^1.5.0",
+    "hyperspace": "^3.18.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {}
+}
