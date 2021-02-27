@@ -4,6 +4,9 @@
   "workspaces": [
     "dbrain-core/*"
   ],
+  "scripts": {
+    "fetch:ctzn": "git fetch ctzn master; git subtree pull --prefix packages/ctzn ctzn master"
+  },
   "devDependencies": {
     "lerna": "^3.22.1"
   }
