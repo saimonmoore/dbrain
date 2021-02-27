@@ -1,0 +1,10 @@
+{
+  "name": "dbrain",
+  "private": true,
+  "workspaces": [
+    "dbrain-core/*"
+  ],
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  }
+}
