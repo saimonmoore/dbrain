@@ -1,18 +1,38 @@
-# CTZN
+# CTZN (pronounced "Citizen")
 
-A distributed social network mad science experiment. WIP.
+A decentralized social network with a strong focus on building communities.
 
-Twitter-style feed and posts. Users follow each other, post to their own p2p databases, and servers aggregate their community's data to provide large-scale indexes in their own p2p databases.
+**Features**
 
-CTZN is a toolkit for political engineering. While it provides a core schema for social networks, it considers extensible "Political Experience" and application networks to be a key design goal.
+- Status feeds with 256 character limits but the ability to post "extended text" with no limit (shows on expand).
+- Social following and moderated communities.
+- Threaded comments.
+- Decentralized hosting (anybody can create a server, and data syncs using the [Hypercore Protocol](https://hypercore-protocol.org)).
 
-## Docs
+Read the [initial design document](./docs/design.md) to learn more about the architecture.
 
-- [How to set up a CTZN server](./docs/setting-up-a-server.md)
-- [Design overview](./docs/design.md)
-- [Schemas overview](./docs/schemas.md)
+## ⚠️ Alpha Software
 
-## Patreon support
+CTZN is still in development! If you decide to run a server or build against the protocol, beware that breaking changes may occur and won't always be communicated ahead of time. We will create a stability process once CTZN reaches beta.
+
+## 📚 Docs
+
+- **Setup**
+    - [**How to set up a CTZN server**](./docs/setting-up-a-server.md)
+- **Architecture**
+    - [**Design overview**](./docs/design.md)
+    - [**Roadmap**](./docs/roadmap.md)
+    - [**Database schemas overview**](./docs/schemas.md)
+    - [**Community roles system**](./docs/community-roles.md)
+    - [**Community permissions system**](./docs/permissions.md)
+
+### 📺 Videos
+
+CTZN's development has been live-streamed from day 1. You can [watch the archives on YouTube](https://www.youtube.com/channel/UCSkcL4my2wgDRFvjQOJzrlg).
+
+----
+
+## ✨ Patreon support
 
 CTZN is [generously supported on Patreon](https://www.patreon.com/paul_maf_and_andrew) by the following people!
 
@@ -75,3 +95,8 @@ CTZN is [generously supported on Patreon](https://www.patreon.com/paul_maf_and_a
 - Marcel Miranda
 - Will 
 
+### Other platforms
+
+We've also received gracious donations outside of patreon from:
+
+- cryptokoh.eth

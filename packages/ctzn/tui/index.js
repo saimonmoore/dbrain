@@ -11,6 +11,7 @@ export function start ({pkg, configDir}) {
     dockBorders: true
     // log: './tui.log'
   })
+  screen._listenedMouse = true // HACK- short-circuit blessed's mouse handling to disable it
   screen.title = `CTZN ${pkg.version}`
   screen.key(['C-c'], function(ch, key) {
     return process.exit(0)
@@ -18,6 +19,7 @@ export function start ({pkg, configDir}) {
   screen.key(['f1'], () => views.goto('home'))
   screen.key(['f2'], () => views.goto('hyperspace'))
   screen.key(['f3'], () => views.goto('issues'))
+  screen.key(['f4'], () => views.goto('communities'))
 
   views.setup({screen}, {pkg, configDir})
   views.goto('home')

@@ -6,12 +6,18 @@ import { Config } from './lib/config.js'
 import * as db from './db/index.js'
 import * as api from './api/index.js'
 import * as perf from './lib/perf.js'
+import { NoTermsOfServiceIssue } from './lib/issues/no-terms-of-service.js'
+import { NoPrivacyPolicyIssue } from './lib/issues/no-privacy-policy.js'
+import * as issues from './lib/issues.js'
 import * as path from 'path'
+import * as fs from 'fs'
 import { fileURLToPath } from 'url'
 import * as os from 'os'
 import { setOrigin, getDomain, parseAcctUrl, usernameToUserId, constructUserUrl, DEBUG_MODE_PORTS_MAP } from './lib/strings.js'
 import * as dbGetters from './db/getters.js'
 
+const PACKAGE_JSON_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), 'package.json')
+const PACKAGE_JSON = JSON.parse(fs.readFileSync(PACKAGE_JSON_PATH, 'utf8'))
 const DEFAULT_USER_AVATAR_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), 'static', 'img', 'default-user-avatar.jpg')
 const DEFAULT_COMMUNITY_AVATAR_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), 'static', 'img', 'default-community-avatar.jpg')
 
@@ -27,6 +33,8 @@ export async function start (opts) {
     config.overrides.port = DEBUG_MODE_PORTS_MAP[config.domain]
   }
   setOrigin(`http://${config.domain || 'localhost'}:${config.port}`)
+  const TERMS_OF_SERVICE_PATH = path.join(opts.configDir, 'terms-of-service.txt')
+  const PRIVACY_POLICY_PATH = path.join(opts.configDir, 'privacy-policy.txt')
 
   app = express()
   app.set('views', path.join(path.dirname(fileURLToPath(import.meta.url)), 'views'))
@@ -57,6 +65,40 @@ export async function start (opts) {
       })
     } catch (e) {
       json404(res, e)
+    }
+  })
+
+  app.get('/ctzn/server-info', async (req, res) => {
+    res.status(200).json({
+      version: PACKAGE_JSON.version
+    })
+  })
+
+  app.get('/ctzn/server-terms-of-service', async (req, res) => {
+    let txt
+    try {
+      txt = await fs.promises.readFile(TERMS_OF_SERVICE_PATH, 'utf8')
+    } catch (e) {
+      issues.add(new NoTermsOfServiceIssue())
+    }
+    if (txt) {
+      res.status(200).end(txt)
+    } else {
+      res.status(404).end()
+    }
+  })
+
+  app.get('/ctzn/server-privacy-policy', async (req, res) => {
+    let txt
+    try {
+      txt = await fs.promises.readFile(PRIVACY_POLICY_PATH, 'utf8')
+    } catch (e) {
+      issues.add(new NoPrivacyPolicyIssue())
+    }
+    if (txt) {
+      res.status(200).end(txt)
+    } else {
+      res.status(404).end()
     }
   })
 
@@ -136,6 +178,24 @@ export async function start (opts) {
     }
   })
 
+  app.get('/ctzn/roles/:username', async (req, res) => {
+    try {
+      const db = getDb(req.params.username)
+      res.status(200).json(await dbGetters.listCommunityRoles(db, getListOpts(req)))
+    } catch (e) {
+      json404(res, e)
+    }
+  })
+
+  app.get('/ctzn/bans/:username', async (req, res) => {
+    try {
+      const db = getDb(req.params.username)
+      res.status(200).json(await dbGetters.listCommunityBans(db, getListOpts(req)))
+    } catch (e) {
+      json404(res, e)
+    }
+  })
+
   app.get('/ctzn/post/:username([^\/]{3,})/:key', async (req, res) => {
     try {
       const db = getDb(req.params.username)
@@ -157,6 +217,15 @@ export async function start (opts) {
   app.get('/ctzn/thread/:url', async (req, res) => {
     try {
       res.status(200).json(await dbGetters.getThread(req.params.url))
+    } catch (e) {
+      json404(res, e)
+    }
+  })
+
+  app.get('/ctzn/comment/:username([^\/]{3,})/:key', async (req, res) => {
+    try {
+      const db = getDb(req.params.username)
+      res.status(200).json(await dbGetters.getComment(db, req.params.key, usernameToUserId(req.params.username)))
     } catch (e) {
       json404(res, e)
     }

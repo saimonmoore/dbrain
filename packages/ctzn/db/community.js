@@ -21,6 +21,8 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
     await this.blobs.setup()
     this.profile = this.getTable('ctzn.network/profile')
     this.members = this.getTable('ctzn.network/community-member')
+    this.roles = this.getTable('ctzn.network/community-role')
+    this.bans = this.getTable('ctzn.network/community-ban')
     this.indexState = this.getTable('ctzn.network/index-state')
     this.feedIdx = this.getTable('ctzn.network/feed-idx')
     this.threadIdx = this.getTable('ctzn.network/thread-idx')
@@ -37,7 +39,7 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
 
     const NOTIFICATIONS_SCHEMAS = [
       'ctzn.network/follow',
-      'ctzn.network/post',
+      'ctzn.network/comment',
       'ctzn.network/vote'
     ]
     this.createIndexer('ctzn.network/notification-idx', NOTIFICATIONS_SCHEMAS, async (db, change) => {
@@ -57,7 +59,7 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
               await this.notificationsIdx.put(createKey(change.value.subject.dbUrl), notification)
             }
             break
-          case 'ctzn.network/post': {
+          case 'ctzn.network/comment': {
             // reply to content in my community?
             if (!change.value.reply) return // not a reply
             if (change.value.community?.userId !== this.userId) return // not in our community
@@ -109,7 +111,7 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
           },
           createdAt: (new Date()).toISOString()
         }
-        this.feedIdx.put(mlts(), value)
+        await this.feedIdx.put(mlts(), value)
       } finally {
         release()
         pend()
@@ -120,12 +122,12 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
       const pend = perf.measure(`publicCommunityDb:follows-indexer`)
       let subject = change.value?.subject
       if (!subject) {
-        const oldEntry = await db.bee.checkout(change.seq).get(change.key)
+        const oldEntry = await db.bee.checkout(change.seq).get(change.key, {timeout: 10e3})
         subject = oldEntry.value.subject
       }
       const release = await this.lock(`follows-idx:${subject.userId}`)
       try {
-        let followsIdxEntry = await this.followsIdx.get(subject.userId).catch(e => undefined)
+        let followsIdxEntry = await this.followsIdx.get(subject.userId)
         if (!followsIdxEntry) {
           followsIdxEntry = {
             key: subject.userId,
@@ -153,14 +155,14 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
       }
     })
 
-    this.createIndexer('ctzn.network/thread-idx', ['ctzn.network/post'], async (db, change) => {
+    this.createIndexer('ctzn.network/thread-idx', ['ctzn.network/comment'], async (db, change) => {
       const pend = perf.measure(`publicCommunityDb:thread-indexer`)
-      const postUrl = constructEntryUrl(db.url, 'ctzn.network/post', change.keyParsed.key)
+      const commentUrl = constructEntryUrl(db.url, 'ctzn.network/comment', change.keyParsed.key)
       let replyRoot = change.value?.reply?.root
       let replyParent = change.value?.reply?.parent
       let community = change.value?.community
       if (!change.value) {
-        const oldEntry = await db.bee.checkout(change.seq).get(change.key)
+        const oldEntry = await db.bee.checkout(change.seq).get(change.key, {timeout: 10e3})
         replyRoot = oldEntry.value.reply?.root
         replyParent = oldEntry.value.reply?.parent
         community = oldEntry.value?.community
@@ -169,7 +171,7 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
         return // not a reply, ignore
       }
       if (community?.userId !== this.userId) {
-        return // not a post in my community, ignore
+        return // not a comment in my community, ignore
       }
 
       if (replyParent && replyParent.dbUrl === replyRoot.dbUrl) {
@@ -180,7 +182,7 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
       for (let target of targets) {
         const release = await this.lock(`thread-idx:${target.dbUrl}`)
         try {
-          let threadIdxEntry = await this.threadIdx.get(target.dbUrl).catch(e => undefined)
+          let threadIdxEntry = await this.threadIdx.get(target.dbUrl)
           if (!threadIdxEntry) {
             threadIdxEntry = {
               key: target.dbUrl,
@@ -190,11 +192,11 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
               }
             }
           }
-          let itemUrlIndex = threadIdxEntry.value.items.findIndex(c => c.dbUrl === postUrl)
+          let itemUrlIndex = threadIdxEntry.value.items.findIndex(c => c.dbUrl === commentUrl)
           if (change.value) {
             if (itemUrlIndex === -1) {
               const authorId = db.userId
-              threadIdxEntry.value.items.push({dbUrl: postUrl, authorId})
+              threadIdxEntry.value.items.push({dbUrl: commentUrl, authorId})
               await this.threadIdx.put(threadIdxEntry.key, threadIdxEntry.value)
             }
           } else {
@@ -217,11 +219,11 @@ export class PublicCommunityDB extends BaseHyperbeeDB {
         const voteUrl = constructEntryUrl(db.url, 'ctzn.network/vote', change.keyParsed.key)
         let subject = change.value?.subject
         if (!subject) {
-          const oldEntry = await db.bee.checkout(change.seq).get(change.key)
+          const oldEntry = await db.bee.checkout(change.seq).get(change.key, {timeout: 10e3})
           subject = oldEntry.value.subject
         }
 
-        let votesIdxEntry = await this.votesIdx.get(subject.dbUrl).catch(e => undefined)
+        let votesIdxEntry = await this.votesIdx.get(subject.dbUrl)
         if (!votesIdxEntry) {
           votesIdxEntry = {
             key: change.keyParsed.key,

@@ -17,6 +17,7 @@ A list of all schemas and how they're used.
 
 - `ctzn.network/profile` Record of user info (name, description, etc)
 - `ctzn.network/post` A single post
+- `ctzn.network/comment` A comment on some item
 - `ctzn.network/vote` A vote up or down on some URL
 - `ctzn.network/follow` Record of following another user
 - `ctzn.network/community-membership` Record of membership in a community
@@ -33,6 +34,8 @@ A list of all schemas and how they're used.
 
 - `ctzn.network/profile` Record of community info (name, description, etc)
 - `ctzn.network/community-member` Record of member users
+- `ctzn.network/community-role` Role definition in the community
+- `ctzn.network/community-ban` Record of a ban from the community
 - `ctzn.network/index-state` Record of indexing states
 - `ctzn.network/feed-idx` Index of content in the community feed
 - `ctzn.network/follow-idx` Index of follows by community members

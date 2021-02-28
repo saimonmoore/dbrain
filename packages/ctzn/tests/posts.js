@@ -13,6 +13,7 @@ test.before(async () => {
   await sim.createCitizen(inst, 'alice')
   await sim.createCitizen(inst, 'bob')
   await sim.createCitizen(inst, 'carla')
+  await sim.users.alice.login()
   await sim.createCommunity(inst, 'folks')
   await sim.createCommunity(inst, 'ppl')
 
@@ -120,6 +121,28 @@ test('multiple users posting to community', async t => {
     [bob, '5']
   ])
 
+  await bob.login()
+  postEntries = await api.posts.listHomeFeed()
+  sim.testFeed(t, postEntries, [
+    [carla, '6'],
+    [bob, '5'],
+    [alice, '4'],
+    [carla, '3'],
+    [bob, '2'],
+    [alice, '1'],
+    [bob, '3'],
+    [bob, '2']
+  ])
+  postEntries = await api.posts.listHomeFeed({limit: 2})
+  sim.testFeed(t, postEntries, [
+    [carla, '6'],
+    [bob, '5']
+  ])
+  postEntries = await api.posts.listHomeFeed({lt: bob.posts[2].key})
+  sim.testFeed(t, postEntries, [
+    [bob, '2']
+  ])
+
   await alice.login()
   await api.posts.edit(alice.posts[0].key, {text: '1234'})
   postEntries = await api.posts.listUserFeed(folks.userId)
@@ -138,4 +161,12 @@ test('multiple users posting to community', async t => {
     [bob, '2'],
     [carla, '3']
   ])
+})
+
+test('extended text', async t => {
+  const bob = sim.users.bob
+  let post = await bob.createPost({text: 'the limited text', extendedText: 'the unlimited text'})
+  let postRecord = await api.posts.get(post.url)
+  t.is(postRecord.value.text, 'the limited text')
+  t.is(postRecord.value.extendedText, 'the unlimited text')
 })

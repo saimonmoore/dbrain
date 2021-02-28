@@ -12,6 +12,7 @@ import * as perf from '../lib/perf.js'
 import * as issues from '../lib/issues.js'
 import { DbIndexingIssue } from '../lib/issues/db-indexing.js'
 
+const READ_TIMEOUT = 10e3
 const BACKGROUND_INDEXING_DELAY = 5e3 // how much time is allowed to pass before globally indexing an update
 const BLOB_CHUNK_SIZE = bytes('64kb')
 
@@ -91,7 +92,7 @@ export class BaseHyperbeeDB extends EventEmitter {
       this.onDatabaseCreated()
     }
 
-    const desc = await this.bee.get('_db')
+    const desc = await this.bee.get('_db', {timeout: READ_TIMEOUT})
     if (desc) {
       dbDescription.assert(desc.value)
       this.desc = desc.value
@@ -252,12 +253,13 @@ class Blobs {
   }
 
   async createReadStream (key) {
-    const pointer = await this.kv.get(key)
+    const pointer = await this.kv.get(key, {timeout: READ_TIMEOUT})
     if (!pointer) throw new Error('Blob not found')
     blobPointer.assert(pointer.value)
     return this.feed.createReadStream({
       start: pointer.value.start,
-      end: pointer.value.end
+      end: pointer.value.end,
+      timeout: READ_TIMEOUT
     })
   }
 
@@ -282,7 +284,7 @@ class Table {
 
   async get (key) {
     const pend = perf.measure('table.get')
-    let entry = await this.bee.get(String(key))
+    let entry = await this.bee.get(String(key), {timeout: READ_TIMEOUT})
     if (entry) {
       this.schema.assertValid(entry.value)
     }
@@ -313,6 +315,8 @@ class Table {
 
   createReadStream (opts) {
     let _this = this
+    opts = opts || {}
+    opts.timeout = READ_TIMEOUT
     return this.bee.createReadStream(opts).pipe(through2.obj(function (entry, enc, cb) {
       const valid = _this.schema.validate(entry.value)
       if (valid) this.push(entry)
@@ -322,6 +326,8 @@ class Table {
 
   async list (opts) {
     const pend = perf.measure('table.list')
+    opts = opts || {}
+    opts.timeout = READ_TIMEOUT
     return new Promise((resolve, reject) => {
       pump(
         this.createReadStream(opts),
@@ -332,6 +338,46 @@ class Table {
         }
       )
     })
+  }
+
+  scanFind (opts, fn) {
+    return new Promise((resolve, reject) => {
+      let found = false
+      opts = opts || {}
+      opts.timeout = READ_TIMEOUT
+      const rs = this.createReadStream(opts)
+      rs.on('data', entry => {
+        if (found) return
+        if (fn(entry)) {
+          // TODO fix rs.destroy()
+          // rs.destroy()
+          found = true
+          resolve(entry)
+        }
+      })
+      rs.on('end', () => {
+        if (!found) resolve(undefined)
+      })
+    })
+  }
+
+  cursorRead (opts = {}) {
+    let lt = opts.lt
+    const reverse = opts.reverse
+    let atEnd = false
+    return {
+      db: this.db,
+      next: async (n) => {
+        if (atEnd) return null
+        let res = await this.list({lt, reverse, limit: n})
+        if (res.length === 0) {
+          atEnd = true
+          return null
+        }
+        lt = res[res.length - 1].key
+        return res
+      }
+    }
   }
 
   onPut (cb) {
@@ -356,7 +402,7 @@ class Indexer {
 
   async getState (url) {
     if (!this.indexStatesCache[url] && !this.schemaId.startsWith('memory:')) {
-      this.indexStatesCache[url] = await this.db.indexState.get(`${this.schemaId}:${url}`)
+      this.indexStatesCache[url] = await this.db.indexState.get(`${this.schemaId}:${url}`, {timeout: READ_TIMEOUT})
     }
     return this.indexStatesCache[url]
   }
