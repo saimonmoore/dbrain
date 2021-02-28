@@ -33,8 +33,9 @@
         "items": {
           "type": "object",
           "properties": {
-            "id": {
-              "type": "integer"
+            "dbUrl": {
+              "type": "string",
+              "format": "uri"
             },
             "name": {
               "type": "string"
