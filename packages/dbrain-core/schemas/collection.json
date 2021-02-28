@@ -1,46 +1,34 @@
 {
-  "id": "dbrain.politis.network/memory",
-  "title": "Memory",
-  "description": "A social media feed item to remember and recover",
+  "id": "dbrain.politis.network/collection",
+  "title": "Collection",
+  "description": "A collection to hold memories",
   "type": "json",
   "definition": {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
-    "required": ["type", "createdAt", "updatedAt"],
+    "required": ["title", "colour", "count", "sort", "createdAt"],
     "additionalProperties": false,
     "properties": {
-      "type": {
-        "type": "string",
-        "enum": ["link", "article", "image"]
-      },
-      "link": {
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 500
-      },
       "title": {
         "type": "string",
         "minLength": 1,
         "maxLength": 1000
       },
-      "content": {
+      "description": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 65000
+        "maxLength": 10000
       },
-      "tags": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer"
-            },
-            "name": {
-              "type": "string"
-            }
-          }
-        }
+      "colour": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "count": {
+        "type": "integer"
+      },
+      "sort": {
+        "type": "integer"
       },
       "creator": {
         "type": "object",
@@ -57,7 +45,7 @@
           }
         }
       },
-      "collection": {
+      "community": {
         "type": "object",
         "required": ["dbUrl", "userId"],
         "additionalProperties": false,
@@ -72,11 +60,25 @@
           }
         }
       },
-      "createdAt": {
+      "parent": {
+        "type": "object",
+        "required": ["dbUrl", "authorId"],
+        "properties": {
+          "dbUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "authorId": {
+            "type": "string",
+            "pattern": ".+@.+"
+          }
+        }
+      },
+      "updatedAt": {
         "type": "string",
         "format": "date-time"
       },
-      "updatedAt": {
+      "createdAt": {
         "type": "string",
         "format": "date-time"
       }
