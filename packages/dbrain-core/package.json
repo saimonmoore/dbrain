@@ -33,7 +33,9 @@
   "dependencies": {
     "hyperbee": "^1.5.0",
     "hyperspace": "^3.18.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "monotonic-lexicographic-timestamp": "^1.0.0",
+    "ctzn": "0.0.0"
   },
   "devDependencies": {}
 }
