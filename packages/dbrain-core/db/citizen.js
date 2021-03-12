@@ -1,14 +1,14 @@
-export const publicCitizenDbExtension = {
+export const publicCitizenDbExtensions = {
   setup: function setup(citizenKlass) {
-    citizenKlass.dbrainMemories = citizenKlass.getTable('dbrain.politis.network/memory')
-    citizenKlass.dbrainCollections = citizenKlass.getTable('dbrain.politis.network/collection')
-    citizenKlass.dbrainTags = citizenKlass.getTable('dbrain.politis.network/tag')
-    console.log('[dbrain.db.citizen.public] Done setup!')
+    citizenKlass.dbrain = citizenKlass.dbrain || {}
+    citizenKlass.dbrain.memories = citizenKlass.getTable('dbrain.politis.network/memory')
+    citizenKlass.dbrain.collections = citizenKlass.getTable('dbrain.politis.network/collection')
+    citizenKlass.dbrain.tags = citizenKlass.getTable('dbrain.politis.network/tag')
   }
 }
 
-export const privateCitizenDbExtension = {
+export const privateCitizenDbExtensions = {
   setup: function setup(citizenKlass) {
-    console.log('[dbrain.db.citizen.private] Done setup!')
+    citizenKlass.dbrain = citizenKlass.dbrain || {}
   }
 }

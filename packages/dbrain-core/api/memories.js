@@ -22,7 +22,7 @@ const listParam = createValidator({
 })
 
 export const setup = function setup(wsServer, config) {
-  wsServer.register('dbrain.memories.listUserFeed', async ([userId, opts], client) => {
+  wsServer.register('memories.listUserFeed', async ([userId, opts], client) => {
     if (opts) {
       listParam.assert(opts)
     }
@@ -37,7 +37,7 @@ export const setup = function setup(wsServer, config) {
     return listMemories(publicUserDb, opts, userId, client.auth)
   })
 
-  wsServer.register('dbrain.memories.get', async ([userId, key], client) => {
+  wsServer.register('memories.get', async ([userId, key], client) => {
     if (!key && userId) {
       let parsed = parseEntryUrl(userId)
       if (parsed.schemaId !== 'dbrain.politis.network/memory') {
@@ -53,20 +53,20 @@ export const setup = function setup(wsServer, config) {
     return getMemory(publicUserDb, key, userId, client.auth)
   })
 
-  wsServer.register('dbrain.memories.create', async ([memory], client) => {
+  wsServer.register('memories.create', async ([memory], client) => {
     if (!client?.auth) throw new errors.SessionError()
     const publicUserDb = publicUserDbs.get(client.auth.userId)
     if (!publicUserDb) throw new errors.NotFoundError('User database not found')
 
     const key = mlts()
-    post.createdAt = (new Date()).toISOString()
-    await publicUserDb.posts.put(key, post)
+    memory.createdAt = memory.updatedAt = (new Date()).toISOString()
+    await publicUserDb.dbrain.memories.put(key, memory)
 
     const url = constructEntryUrl(publicUserDb.url, 'dbrain.politis.network/memory', key)
     return {key, url}
   })
 
-  wsServer.register('dbrain.memories.edit', async ([key, memory], client) => {
+  wsServer.register('memories.edit', async ([key, memory], client) => {
     if (!client?.auth) throw new errors.SessionError()
     const publicUserDb = publicUserDbs.get(client.auth.userId)
     if (!publicUserDb) throw new errors.NotFoundError('User database not found')
@@ -82,14 +82,14 @@ export const setup = function setup(wsServer, config) {
     memoryEntry.value.type = ('type' in memory) ? memory.type : memoryEntry.value.type
     memoryEntry.value.excerpt = ('excerpt' in memory) ? memory.excerpt : memoryEntry.value.excerpt
     // How to associate with a collection?
-    await publicUserDb.posts.put(key, memoryEntry.value)
+    await publicUserDb.dbrain.memories.put(key, memoryEntry.value)
     await onDatabaseChange(publicUserDb, [privateUserDbs.get(client.auth.userId)])
 
     const url = constructEntryUrl(publicUserDb.url, 'dbrain.politis.network/memory', memoryEntry.key)
     return {key, url}
   })
 
-  wsServer.register('dbrain.memories.del', async ([key], client) => {
+  wsServer.register('memories.del', async ([key], client) => {
     if (!client?.auth) throw new errors.SessionError()
     const publicUserDb = publicUserDbs.get(client.auth.userId)
     if (!publicUserDb) throw new errors.NotFoundError('User database not found')
@@ -97,6 +97,4 @@ export const setup = function setup(wsServer, config) {
     await publicUserDb.dbrain.memories.del(key)
     await onDatabaseChange(publicUserDb, [privateUserDbs.get(client.auth.userId)])
   })
-
-  console.log('[dbrain.api.memories] Done setup!')
 }

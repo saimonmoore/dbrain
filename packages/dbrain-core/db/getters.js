@@ -1,6 +1,6 @@
 import { db, dbHelpers, stringHelpers, networkHelpers } from 'ctzn'
-import { dbGet, fetchAuthor, fetchVotes, fetchReplyCount, fetchReplies, fetchSelfIndexFollowerIds, fetchCommunityIndexesFollowerIds } from './util.js'
 
+const { dbGet, fetchAuthor, fetchVotes, fetchReplyCount, fetchReplies, fetchSelfIndexFollowerIds, fetchCommunityIndexesFollowerIds } = dbHelpers
 const { fetchUserId, fetchUserInfo } = networkHelpers
 const { constructEntryUrl, parseEntryUrl } = stringHelpers
 const { publicUserDbs } = db

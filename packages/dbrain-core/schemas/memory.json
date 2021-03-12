@@ -7,7 +7,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "required": ["type", "createdAt", "updatedAt"],
-    "additionalProperties": false,
+    "additionalProperties": true,
     "properties": {
       "type": {
         "type": "string",

@@ -1,11 +1,11 @@
-import { memories } from './memories.js'
-import { collections } from './collections.js'
-import { tags } from './tags.js'
+import { setup as setupMemories } from './memories.js'
+import { setup as setupCollections } from './collections.js'
+import { setup as setupTags } from './tags.js'
 
-export const apiExtension = {
+export const apiExtensions = {
   setup: function setup(wsServer, config) {
-     memories.setup(wsServer, config)
-     collections.setup(wsServer, config)
-     tags.setup(wsServer, config)
+     setupMemories(wsServer, config)
+     setupCollections(wsServer, config)
+     setupTags(wsServer, config)
   }
 }
